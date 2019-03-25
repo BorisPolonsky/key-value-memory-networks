@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from memn2n_kv import MemN2N_KV
 from itertools import chain
 from six.moves import range
+from functools import reduce
 
 import tensorflow as tf
 import numpy as np
@@ -45,7 +46,7 @@ vocab = sorted(reduce(lambda x, y: x | y, (set(list(chain.from_iterable(s)) + q 
 word_idx = dict((c, i + 1) for i, c in enumerate(vocab))
 
 max_story_size = max(map(len, (s for s, _, _ in data)))
-mean_story_size = int(np.mean(map(len, (s for s, _, _ in data))))
+mean_story_size = int(np.mean(list(map(len, (s for s, _, _ in data)))))
 sentence_size = max(map(len, chain.from_iterable(s for s, _, _ in data)))
 query_size = max(map(len, (q for _, q, _ in data)))
 memory_size = min(FLAGS.memory_size, max_story_size)
@@ -77,7 +78,7 @@ test_labels = np.argmax(testA, axis=1)
 val_labels = np.argmax(valA, axis=1)
 
 batch_size = FLAGS.batch_size
-batches = zip(range(0, n_train-batch_size, batch_size), range(batch_size, n_train, batch_size))
+batches = list(zip(range(0, n_train-batch_size, batch_size), range(batch_size, n_train, batch_size)))
 
 with tf.Graph().as_default():
     session_conf = tf.ConfigProto(
